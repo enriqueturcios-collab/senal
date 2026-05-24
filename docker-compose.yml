@@ -1,0 +1,98 @@
+services:
+
+  # ── PostgreSQL ────────────────────────────────────────────────────────────────
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB:       senal_dev
+      POSTGRES_USER:     postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./database/schema:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ── B2B API ───────────────────────────────────────────────────────────────────
+  api:
+    build:
+      context: ./api
+      target: builder          # dev: rebuild on src changes via volume
+    command: npx tsx watch src/index.ts
+    restart: unless-stopped
+    depends_on:
+      db: { condition: service_healthy }
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV:           development
+      PORT:               3001
+      DATABASE_URL:       postgresql://postgres:postgres@db:5432/senal_dev
+      API_VERSION:        v1
+      CORS_ORIGINS:       "http://localhost:3000,http://localhost:3002"
+      ARGON2_TIME_COST:   3
+      ARGON2_MEMORY_COST: 65536
+      RATE_LIMIT_MAX:     100
+      RATE_LIMIT_WINDOW_MS: 60000
+    volumes:
+      - ./api/src:/build/src:ro
+
+  # ── Portal bancario ───────────────────────────────────────────────────────────
+  portal:
+    build:
+      context: ./portal
+      target: builder
+    command: npm run dev
+    restart: unless-stopped
+    depends_on:
+      db: { condition: service_healthy }
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL:    postgresql://postgres:postgres@db:5432/senal_dev
+      NEXTAUTH_URL:    http://localhost:3000
+      NEXTAUTH_SECRET: dev-secret-portal-change-in-prod
+    volumes:
+      - ./portal/src:/build/src:ro
+
+  # ── Marketplace app ───────────────────────────────────────────────────────────
+  app:
+    build:
+      context: ./app
+      target: builder
+    command: npm run dev
+    restart: unless-stopped
+    depends_on:
+      db: { condition: service_healthy }
+    ports:
+      - "3002:3002"
+    environment:
+      DATABASE_URL:    postgresql://postgres:postgres@db:5432/senal_dev
+      NEXTAUTH_URL:    http://localhost:3002
+      NEXTAUTH_SECRET: dev-secret-app-change-in-prod
+    volumes:
+      - ./app/src:/build/src:ro
+
+  # ── ETL pipeline ──────────────────────────────────────────────────────────────
+  etl:
+    build: ./etl
+    restart: unless-stopped
+    depends_on:
+      db: { condition: service_healthy }
+    environment:
+      DATABASE_URL:              postgresql://postgres:postgres@db:5432/senal_dev
+      K_ANONYMITY_THRESHOLD:     5
+      ETL_BATCH_SIZE:            1000
+      ETL_INCREMENTAL_LOOKBACK_H: 2
+      DRY_RUN:                   "false"
+      LOG_LEVEL:                 INFO
+      LOG_FORMAT:                text
+
+volumes:
+  pgdata:

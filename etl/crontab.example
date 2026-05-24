@@ -1,0 +1,20 @@
+# Crontab de referencia para despliegue sin scheduler embebido
+# Instalar con: crontab -e
+# Ajustar rutas según el entorno de producción
+
+# Ruta al directorio del ETL
+ETL_DIR=/opt/senal/etl
+PYTHON=/opt/senal/venv/bin/python
+LOG_DIR=/var/log/senal
+
+# Incremental: cada hora a los 5 minutos
+5 * * * *   cd $ETL_DIR && $PYTHON scripts/run_pipeline.py incremental >> $LOG_DIR/incremental.log 2>&1
+
+# Daily completo: 02:10 AM (America/Guatemala)
+10 2 * * *  cd $ETL_DIR && $PYTHON scripts/run_pipeline.py daily       >> $LOG_DIR/daily.log      2>&1
+
+# Sync dimensiones: domingo 03:00 AM
+0  3 * * 0  cd $ETL_DIR && $PYTHON scripts/run_pipeline.py sync-dimensions >> $LOG_DIR/dimensions.log 2>&1
+
+# Validación de privacidad: lunes 06:00 AM (alerta si falla)
+0  6 * * 1  cd $ETL_DIR && $PYTHON scripts/validate.py >> $LOG_DIR/validate.log 2>&1
