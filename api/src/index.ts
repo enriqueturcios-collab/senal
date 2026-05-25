@@ -22,9 +22,6 @@ async function build() {
   const fastify = Fastify({
     logger: {
       level: isProd ? 'warn' : 'info',
-      ...(isProd ? {} : {
-        transport: { target: 'pino-pretty', options: { colorize: true } }
-      }),
     },
     trustProxy: true,
     requestIdHeader: 'x-request-id',

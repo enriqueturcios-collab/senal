@@ -83,10 +83,14 @@ INSERT INTO app.zones (municipality_id, name, zone_type, lat_centroid, lng_centr
 INSERT INTO app.municipalities (department_id, name) VALUES
 (8, 'Quetzaltenango');
 
-INSERT INTO app.zones (municipality_id, name, zone_type, lat_centroid, lng_centroid) VALUES
-(22, 'Zona 1', 'zona', 14.8444, -91.5178),
-(22, 'Zona 2', 'zona', 14.8380, -91.5100),
-(22, 'Zona 3', 'zona', 14.8500, -91.5050);
+INSERT INTO app.zones (municipality_id, name, zone_type, lat_centroid, lng_centroid)
+SELECT m.id, v.name, v.zone_type, v.lat, v.lng
+FROM (VALUES
+  ('Zona 1'::varchar, 'zona'::varchar, 14.8444::decimal, -91.5178::decimal),
+  ('Zona 2',          'zona',          14.8380,           -91.5100),
+  ('Zona 3',          'zona',          14.8500,           -91.5050)
+) AS v(name, zone_type, lat, lng)
+CROSS JOIN (SELECT id FROM app.municipalities WHERE name = 'Quetzaltenango') AS m;
 
 -- ---------------------------------------------------------------------------
 -- CATEGORÍAS — árbol de productos y servicios
