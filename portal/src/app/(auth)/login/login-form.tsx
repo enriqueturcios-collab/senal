@@ -29,7 +29,7 @@ export function LoginForm() {
     if (result?.error) {
       setError('Credenciales incorrectas. Verifica tu correo y contraseña.')
     } else {
-      router.push('/dashboard')
+      router.push('/')
     }
   }
 
