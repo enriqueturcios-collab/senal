@@ -30,6 +30,7 @@ export interface ApiMeta {
   data_confidence?: DataConfidence
   sample_size?: number
   suppressed_cells?: number  // celdas suprimidas por k-anonimidad
+  note?: string
 }
 
 export interface ApiResponse<T> {

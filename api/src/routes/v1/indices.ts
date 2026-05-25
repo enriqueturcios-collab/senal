@@ -1,4 +1,5 @@
 import { FastifyInstance } from 'fastify'
+import type { MarketIndex } from '../../types'
 import { z } from 'zod'
 import { requireScope } from '../../plugins/auth'
 import { setResponseRows } from '../../plugins/audit'
@@ -210,7 +211,7 @@ function scoreToSignal(score: number | null): string {
   return 'very_weak'
 }
 
-function buildRecommendation(index: ReturnType<typeof getTopOpportunities> extends Promise<infer T> ? T[0] : never): string {
+function buildRecommendation(index: MarketIndex): string {
   const score     = index.market_opportunity_score ?? 0
   const unmet     = index.unmet_demand_index ?? 0
   const growth    = index.category_growth_score ?? 0

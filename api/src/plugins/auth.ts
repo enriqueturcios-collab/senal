@@ -9,6 +9,9 @@ const KEY_PREFIX = 'sn_live_'
 const PREFIX_EXTRACT_LENGTH = 8
 
 declare module 'fastify' {
+  interface FastifyInstance {
+    authenticate: (request: FastifyRequest, reply: FastifyReply) => Promise<void>
+  }
   interface FastifyRequest {
     auth: AuthContext
   }
