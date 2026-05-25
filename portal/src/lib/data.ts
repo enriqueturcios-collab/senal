@@ -144,7 +144,9 @@ export async function getDemandTrend(opts: {
     period_start: string
     category: string
     demand_count: number | null
+    transaction_count: number | null
     transaction_rate: number | null
+    unmet_rate: number | null
     growth_pct: number | null
   }>(`
     SELECT
@@ -152,7 +154,9 @@ export async function getDemandTrend(opts: {
       dt.period_start::text,
       dc.name AS category,
       dt.demand_count,
+      dt.transaction_count,
       dt.transaction_rate,
+      dt.unmet_demand_rate AS unmet_rate,
       dt.demand_pct_change AS growth_pct
     FROM analytics.demand_trends dt
     JOIN analytics.dim_categories dc ON dc.id = dt.category_id
