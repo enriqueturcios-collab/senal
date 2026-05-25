@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils'
 const nav = [
   {
     label: 'Overview',
-    href: '/dashboard',
+    href: '/',
     icon: (
       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75}
@@ -16,7 +16,7 @@ const nav = [
   },
   {
     label: 'Oportunidades',
-    href: '/dashboard/opportunities',
+    href: '/opportunities',
     icon: (
       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75}
@@ -26,7 +26,7 @@ const nav = [
   },
   {
     label: 'Consulta de Mercado',
-    href: '/dashboard/lookup',
+    href: '/lookup',
     icon: (
       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75}
@@ -36,7 +36,7 @@ const nav = [
   },
   {
     label: 'Tendencias',
-    href: '/dashboard/trends',
+    href: '/trends',
     icon: (
       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75}
@@ -46,7 +46,7 @@ const nav = [
   },
   {
     label: 'Reportes',
-    href: '/dashboard/reports',
+    href: '/reports',
     icon: (
       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75}
@@ -56,7 +56,7 @@ const nav = [
   },
   {
     label: 'Mi cuenta',
-    href: '/dashboard/account',
+    href: '/account',
     icon: (
       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75}
@@ -96,7 +96,7 @@ export function Sidebar({ institutionName, plan }: SidebarProps) {
       <nav className="flex-1 px-3 py-4 space-y-1">
         {nav.map((item) => {
           const active = pathname === item.href ||
-            (item.href !== '/dashboard' && pathname.startsWith(item.href))
+            (item.href !== '/' && pathname.startsWith(item.href))
           return (
             <Link
               key={item.href}

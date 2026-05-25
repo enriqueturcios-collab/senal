@@ -20,7 +20,7 @@ export function LookupForm({ categories, zones }: Props) {
   function onSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!categoryId || !zoneId) return
-    router.push(`/dashboard/lookup?category_id=${categoryId}&zone_id=${zoneId}`)
+    router.push(`/lookup?category_id=${categoryId}&zone_id=${zoneId}`)
   }
 
   const leafCategories = categories.filter(c => c.level > 0)

@@ -19,7 +19,7 @@ export function OpportunitiesFilters({ departments, categories }: Props) {
     if (dept)   params.set('department',  dept)
     if (catId)  params.set('category_id', catId)
     if (period) params.set('period',      period)
-    router.push(`/dashboard/opportunities?${params.toString()}`)
+    router.push(`/opportunities?${params.toString()}`)
   }
 
   const periods = Array.from({ length: 12 }, (_, i) => prevPeriod(i))
@@ -52,7 +52,7 @@ export function OpportunitiesFilters({ departments, categories }: Props) {
       </button>
       {(dept || catId) && (
         <button
-          onClick={() => { setDept(''); setCatId(''); router.push('/dashboard/opportunities') }}
+          onClick={() => { setDept(''); setCatId(''); router.push('/opportunities') }}
           className="btn-secondary text-sm"
         >
           Limpiar

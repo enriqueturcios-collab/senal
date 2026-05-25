@@ -96,7 +96,7 @@ export default async function DashboardPage() {
         <section className="card">
           <div className="card-header">
             <h2 className="font-semibold text-slate-800">Top oportunidades de mercado</h2>
-            <Link href="/dashboard/opportunities" className="text-sm text-brand-600 hover:underline">
+            <Link href="/opportunities" className="text-sm text-brand-600 hover:underline">
               Ver todas →
             </Link>
           </div>
@@ -152,7 +152,7 @@ export default async function DashboardPage() {
                     </td>
                     <td className="td">
                       <Link
-                        href={`/dashboard/lookup?category_id=${opp.category_id}&zone_id=${opp.zone_id}`}
+                        href={`/lookup?category_id=${opp.category_id}&zone_id=${opp.zone_id}`}
                         className="text-xs text-brand-600 hover:underline whitespace-nowrap"
                       >
                         Ver detalle

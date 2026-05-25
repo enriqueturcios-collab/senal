@@ -23,7 +23,7 @@ export function TrendsFilters({ categories, maxMonths }: Props) {
     const params = new URLSearchParams()
     if (selected.length) params.set('category_ids', selected.join(','))
     params.set('months', months)
-    router.push(`/dashboard/trends?${params.toString()}`)
+    router.push(`/trends?${params.toString()}`)
   }
 
   const monthOptions = [3, 6, 12, 24, 36].filter(m => m <= maxMonths)
@@ -41,7 +41,7 @@ export function TrendsFilters({ categories, maxMonths }: Props) {
         </div>
         <button onClick={apply} className="btn-primary text-sm">Ver tendencia</button>
         {selected.length > 0 && (
-          <button onClick={() => { setSelected([]); router.push('/dashboard/trends') }} className="btn-secondary text-sm">
+          <button onClick={() => { setSelected([]); router.push('/trends') }} className="btn-secondary text-sm">
             Limpiar
           </button>
         )}

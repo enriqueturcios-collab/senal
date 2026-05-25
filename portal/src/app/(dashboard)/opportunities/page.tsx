@@ -120,7 +120,7 @@ export default async function OpportunitiesPage({ searchParams }: Props) {
                     </td>
                     <td className="td">
                       <Link
-                        href={`/dashboard/lookup?category_id=${opp.category_id}&zone_id=${opp.zone_id}`}
+                        href={`/lookup?category_id=${opp.category_id}&zone_id=${opp.zone_id}`}
                         className="text-xs text-brand-600 hover:underline whitespace-nowrap"
                       >
                         Detalle →
