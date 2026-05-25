@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import { LoginForm } from './login-form'
 
 export const metadata: Metadata = { title: 'Iniciar sesión' }
@@ -27,7 +28,7 @@ export default function LoginPage() {
           <p className="text-sm text-slate-500 mb-6">
             Ingresa con las credenciales de tu cuenta institucional.
           </p>
-          <LoginForm />
+          <Suspense><LoginForm /></Suspense>
         </div>
 
         <p className="text-center text-xs text-slate-400 mt-6">
