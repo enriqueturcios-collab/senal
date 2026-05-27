@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { ElementalGradient } from '@/components/ui/elemental-gradient'
 
 export default function InstitutionalLoginPage() {
   const router = useRouter()
@@ -45,9 +46,15 @@ export default function InstitutionalLoginPage() {
   return (
     <div className="min-h-screen flex" style={{ backgroundColor: '#F7F3EA' }}>
       {/* Left panel */}
-      <div className="hidden lg:flex flex-col justify-between w-[420px] shrink-0 px-10 py-12"
-           style={{ backgroundColor: '#4D4A43' }}>
-        <div>
+      <div className="hidden lg:flex flex-col justify-between w-[420px] shrink-0 px-10 py-12 relative overflow-hidden">
+        {/* Gradient background */}
+        <div className="absolute inset-0">
+          <ElementalGradient />
+        </div>
+        {/* Dark overlay */}
+        <div className="absolute inset-0 bg-black/45" />
+
+        <div className="relative">
           <span className="text-[22px] font-bold tracking-[-0.03em] text-white">signal</span>
           <p className="text-[12px] font-semibold uppercase tracking-widest mt-1"
              style={{ color: 'rgba(255,255,255,0.45)' }}>
@@ -55,7 +62,7 @@ export default function InstitutionalLoginPage() {
           </p>
         </div>
 
-        <div className="space-y-6">
+        <div className="relative space-y-6">
           {[
             { icon: '◎', title: 'Demanda real del mercado', desc: 'Inteligencia agregada, no datos crudos.' },
             { icon: '◈', title: 'Análisis crediticio contextual', desc: 'Evidence del mercado para tu análisis.' },
@@ -71,7 +78,7 @@ export default function InstitutionalLoginPage() {
           ))}
         </div>
 
-        <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.3)' }}>
+        <p className="relative text-[11px]" style={{ color: 'rgba(255,255,255,0.3)' }}>
           Esta plataforma provee inteligencia agregada de mercado. No constituye recomendación crediticia.
         </p>
       </div>

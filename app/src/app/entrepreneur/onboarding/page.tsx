@@ -1,5 +1,6 @@
 export const dynamic = 'force-dynamic'
 
+import { ElementalGradient } from '@/components/ui/elemental-gradient'
 import { redirect } from 'next/navigation'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
@@ -23,9 +24,12 @@ export default async function OnboardingPage() {
 
   return (
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#F7F3EA' }}>
-      {/* Header */}
-      <div className="flex items-center justify-center px-5 py-5 shrink-0">
-        <span className="text-[20px] font-bold tracking-[-0.03em] text-signal-text">signal</span>
+      {/* Header with gradient */}
+      <div className="relative h-24 shrink-0 overflow-hidden">
+        <ElementalGradient />
+        <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+          <span className="text-[20px] font-bold tracking-[-0.03em] text-white">signal</span>
+        </div>
       </div>
 
       <div className="flex-1 flex items-start justify-center px-5 py-4 pb-16">

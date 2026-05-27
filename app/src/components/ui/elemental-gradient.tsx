@@ -150,6 +150,11 @@ export function ElementalGradient({ className, style }: Props) {
     const canvas = canvasRef.current
     if (!canvas) return
 
+    // Size from parent — more reliable than canvas.clientHeight when parent uses
+    // flexbox or min-height (where height:100% on the canvas resolves to 0).
+    const parent = canvas.parentElement
+    if (!parent) return
+
     const gl = canvas.getContext('webgl', { antialias: false, alpha: false })
     if (!gl) return
 
@@ -188,9 +193,10 @@ export function ElementalGradient({ className, style }: Props) {
     const uTime = gl.getUniformLocation(prog, 'u_time')
     const uRes  = gl.getUniformLocation(prog, 'u_res')
 
+    // Read dimensions from parent so percentage-height canvases always resolve.
     function resize() {
-      const w   = canvas!.clientWidth
-      const h   = canvas!.clientHeight
+      const w   = parent!.clientWidth
+      const h   = parent!.clientHeight
       const dpr = Math.min(window.devicePixelRatio ?? 1, 2)
       canvas!.width  = Math.round(w * dpr)
       canvas!.height = Math.round(h * dpr)
@@ -198,8 +204,9 @@ export function ElementalGradient({ className, style }: Props) {
     }
     resize()
 
+    // Observe parent, not canvas — parent has the explicit CSS dimensions.
     const ro = new ResizeObserver(resize)
-    ro.observe(canvas)
+    ro.observe(parent)
 
     let rafId: number
     const t0 = performance.now()
@@ -225,7 +232,14 @@ export function ElementalGradient({ className, style }: Props) {
     <canvas
       ref={canvasRef}
       className={className}
-      style={{ display: 'block', width: '100%', height: '100%', ...style }}
+      style={{
+        display: 'block',
+        position: 'absolute',
+        inset: 0,
+        width: '100%',
+        height: '100%',
+        ...style,
+      }}
     />
   )
 }

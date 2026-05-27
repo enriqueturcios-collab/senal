@@ -7,6 +7,7 @@ import { FeedFilters, SearchBar } from './feed-filters'
 import { FeedGrid } from './feed-grid'
 import { FeedSkeleton } from '@/components/demand/demand-card-skeleton'
 import { fmtCurrency, timeAgo } from '@/lib/utils'
+import { ElementalGradient } from '@/components/ui/elemental-gradient'
 
 interface PageProps {
   searchParams: { cat?: string; q?: string; page?: string }
@@ -45,8 +46,21 @@ export default async function HomePage({ searchParams }: PageProps) {
     <div className="min-h-screen bg-signal-bg">
       <div className="max-w-5xl mx-auto px-5 md:px-8" style={{ paddingBottom: '7rem' }}>
 
+        {/* ── Hero gradient strip ───────────────────────────────────────────── */}
+        <div className="relative rounded-2xl overflow-hidden mb-6 mt-5 h-32">
+          <ElementalGradient />
+          <div className="absolute inset-0 bg-black/35 flex items-center px-6 gap-4">
+            <div>
+              <p className="text-[22px] font-bold text-white leading-none tracking-[-0.03em]">signal</p>
+              <p className="text-[12px] mt-1" style={{ color: 'rgba(255,255,255,0.55)' }}>
+                Inteligencia de demanda para Guatemala
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* ── Market Pulse ──────────────────────────────────────────────────── */}
-        <section className="pt-6 pb-7">
+        <section className="pt-0 pb-7">
           <p className="text-[10px] font-bold uppercase tracking-widest mb-4"
              style={{ color: '#A7A196' }}>
             Pulso del mercado

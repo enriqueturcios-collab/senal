@@ -5,6 +5,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { getEntrepreneurSession } from '@/lib/entitlements/feature-gate'
 import { PLAN_DEFINITIONS, PLAN_ORDER, hasFeature, type EntrepreneurPlan } from '@/lib/entitlements/entrepreneur-plans'
+import { ElementalGradient } from '@/components/ui/elemental-gradient'
 
 const FEATURE_ROWS = [
   { label: 'Respuestas de oferta / mes',     key: 'monthly_offer_responses', isLimit: true },
@@ -35,17 +36,20 @@ export default async function PricingPage() {
     <div className="min-h-screen" style={{ backgroundColor: '#F7F3EA' }}>
       <div className="max-w-4xl mx-auto px-5 py-12 pb-20">
 
-        {/* Header */}
-        <div className="text-center mb-10">
-          <Link href="/" className="inline-flex items-center gap-2 mb-6">
-            <span className="text-[20px] font-bold tracking-[-0.03em] text-signal-text">signal</span>
-          </Link>
-          <h1 className="text-[28px] font-bold text-signal-text mb-3" style={{ letterSpacing: '-0.025em' }}>
-            Signal Entrepreneur
-          </h1>
-          <p className="text-[14px] text-signal-text-muted max-w-sm mx-auto">
-            Convertí la demanda de mercado en ventas reales. Elegí el plan que se adapta a tu negocio.
-          </p>
+        {/* Gradient hero */}
+        <div className="relative rounded-3xl overflow-hidden mb-10 h-52">
+          <ElementalGradient />
+          <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center text-center px-6">
+            <Link href="/" className="inline-flex items-center gap-2 mb-3">
+              <span className="text-[20px] font-bold tracking-[-0.03em] text-white">signal</span>
+            </Link>
+            <h1 className="text-[28px] font-bold text-white mb-2" style={{ letterSpacing: '-0.025em' }}>
+              Signal Entrepreneur
+            </h1>
+            <p className="text-[14px] max-w-sm" style={{ color: 'rgba(255,255,255,0.65)' }}>
+              Convertí la demanda de mercado en ventas reales. Elegí el plan que se adapta a tu negocio.
+            </p>
+          </div>
         </div>
 
         {/* Plan cards */}
