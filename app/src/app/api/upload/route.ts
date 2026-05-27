@@ -1,6 +1,5 @@
-import { writeFile } from 'fs/promises'
+import { put } from '@vercel/blob'
 import { NextRequest, NextResponse } from 'next/server'
-import path from 'path'
 import { randomUUID } from 'crypto'
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
@@ -14,20 +13,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 })
     }
     if (!ALLOWED_TYPES.includes(file.type)) {
-      return NextResponse.json({ error: 'Invalid file type' }, { status: 400 })
+      return NextResponse.json({ error: 'Tipo de archivo no permitido' }, { status: 400 })
     }
     if (file.size > MAX_SIZE) {
-      return NextResponse.json({ error: 'File too large (max 8 MB)' }, { status: 400 })
+      return NextResponse.json({ error: 'Archivo demasiado grande (máx 8 MB)' }, { status: 400 })
     }
 
     const ext = file.name.split('.').pop()?.toLowerCase() ?? 'jpg'
-    const filename = `${randomUUID()}.${ext}`
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads')
-    const buffer = Buffer.from(await file.arrayBuffer())
+    const filename = `comprobantes/${randomUUID()}.${ext}`
 
-    await writeFile(path.join(uploadDir, filename), buffer)
-    return NextResponse.json({ url: `/uploads/${filename}` })
-  } catch {
-    return NextResponse.json({ error: 'Upload failed' }, { status: 500 })
+    const blob = await put(filename, file, { access: 'public' })
+    return NextResponse.json({ url: blob.url })
+  } catch (e: any) {
+    console.error('Upload error:', e)
+    return NextResponse.json({ error: 'Upload fallido' }, { status: 500 })
   }
 }
