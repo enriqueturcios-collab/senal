@@ -25,6 +25,7 @@ export default function InstitutionalLoginPage() {
       setError(json.error ?? 'Error de autenticación.')
       setLoading(false)
     } else {
+      setLoading(false)
       router.push('/institutional/dashboard')
     }
   }

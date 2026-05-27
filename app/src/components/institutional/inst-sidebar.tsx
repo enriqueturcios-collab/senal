@@ -13,7 +13,6 @@ const NAV = [
   { href: '/institutional/price-book',          label: 'Price Book',          icon: PriceIcon },
   { href: '/institutional/locations',           label: 'Zonas',               icon: MapIcon },
   { href: '/institutional/alerts',              label: 'Alertas',             icon: BellIcon },
-  { href: '/institutional/exports',             label: 'Exportaciones',       icon: ExportIcon },
   { href: '/institutional/methodology',         label: 'Metodología',         icon: BookIcon },
   { href: '/institutional/access-logs',         label: 'Log de acceso',       icon: ClockIcon },
 ]
