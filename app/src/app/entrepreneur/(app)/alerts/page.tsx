@@ -20,7 +20,7 @@ export default async function AlertsPage() {
 
   const rules = canUseAlerts ? await query<{
     id: string; name: string; keywords: string[]
-    category_names: string[]; urgency_filter: string[]; budget_min: number | null
+    category_names: string[]; urgency_levels: string[]; min_budget: number | null
     is_active: boolean; match_count: number; created_at: string
   }>(`
     SELECT
@@ -29,7 +29,7 @@ export default async function AlertsPage() {
         ARRAY(SELECT c.name FROM app.categories c
               WHERE c.id = ANY(r.category_ids)), '{}'::text[]
       ) AS category_names,
-      r.urgency_filter, r.budget_min, r.is_active,
+      r.urgency_levels, r.min_budget, r.is_active,
       COALESCE((
         SELECT COUNT(*) FROM entrepreneur.opportunity_matches m
         WHERE m.user_id = r.user_id AND m.created_at >= r.created_at

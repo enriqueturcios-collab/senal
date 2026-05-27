@@ -30,13 +30,20 @@ export async function POST(req: NextRequest) {
 
   if (!name?.trim()) return NextResponse.json({ error: 'Nombre requerido' }, { status: 400 })
 
+  const profile = await queryOne<{ id: string }>(
+    `SELECT id FROM entrepreneur.profiles WHERE user_id = $1`,
+    [session.user.id]
+  )
+  if (!profile) return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 })
+
   const rule = await queryOne<{ id: string }>(`
     INSERT INTO entrepreneur.alert_rules
-      (user_id, name, keywords, category_ids, urgency_filter, budget_min)
-    VALUES ($1, $2, $3::text[], $4::int[], $5::text[], $6)
+      (user_id, profile_id, name, keywords, category_ids, urgency_levels, min_budget)
+    VALUES ($1, $2, $3, $4::text[], $5::int[], $6::text[], $7)
     RETURNING id
   `, [
     session.user.id,
+    profile.id,
     name.trim(),
     keywords ?? [],
     category_ids ?? [],
