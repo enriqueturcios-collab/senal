@@ -1,3 +1,4 @@
+import { ElementalGradient } from '@/components/ui/elemental-gradient'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { getServerSession } from 'next-auth'
@@ -67,13 +68,14 @@ export default async function EntrepreneurDashboard() {
     <div className="max-w-3xl mx-auto px-5 md:px-8 py-8 pb-28">
 
       {/* Header */}
-      <div className="mb-8">
-        <p className="text-[11px] font-bold uppercase tracking-widest mb-1" style={{ color: '#A7A196' }}>
-          Signal Entrepreneur
-        </p>
-        <h1 className="text-[26px] font-bold text-signal-text" style={{ letterSpacing: '-0.025em' }}>
-          {ent.businessName ?? session.user.name ?? 'Mi negocio'}
-        </h1>
+      <div className="relative rounded-2xl overflow-hidden mb-7 h-28">
+        <ElementalGradient />
+        <div className="absolute inset-0 bg-black/45 flex flex-col justify-end px-5 pb-4">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-white/50 mb-1">Signal Entrepreneur</p>
+          <h1 className="text-[22px] font-bold text-white" style={{ letterSpacing: '-0.025em' }}>
+            {ent.businessName ?? session.user.name ?? 'Mi negocio'}
+          </h1>
+        </div>
       </div>
 
       {/* Plan upgrade prompt for free */}

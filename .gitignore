@@ -31,3 +31,4 @@ nginx/ssl/
 
 # Datos locales
 pgdata/
+.vercel

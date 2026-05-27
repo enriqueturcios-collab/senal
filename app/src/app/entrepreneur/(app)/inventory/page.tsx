@@ -1,3 +1,4 @@
+import { ElementalGradient } from '@/components/ui/elemental-gradient'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { getServerSession } from 'next-auth'
@@ -39,16 +40,17 @@ export default async function InventoryPage() {
   return (
     <div className="max-w-3xl mx-auto px-5 md:px-8 py-8 pb-28">
 
-      <div className="flex items-start justify-between gap-4 mb-7">
-        <div>
-          <h1 className="text-[24px] font-bold text-signal-text" style={{ letterSpacing: '-0.02em' }}>
-            Inventario
-          </h1>
-          <p className="text-[12px] text-signal-text-muted mt-0.5">
-            {items.length} items
-            {itemLimit > 0 && ` · límite ${itemLimit} en tu plan`}
+      <div className="relative rounded-2xl overflow-hidden mb-6 h-28">
+        <ElementalGradient />
+        <div className="absolute inset-0 bg-black/45 flex flex-col justify-end px-5 pb-4">
+          <h1 className="text-[22px] font-bold text-white" style={{ letterSpacing: '-0.025em' }}>Inventario</h1>
+          <p className="text-[12px] text-white/55 mt-0.5">
+            {items.length} items{itemLimit > 0 && ` · límite ${itemLimit} en tu plan`}
           </p>
         </div>
+      </div>
+      <div className="flex items-start justify-between gap-4 mb-5">
+        <div />
         <div className="flex items-center gap-2">
           {canImport && (
             <Link href="/entrepreneur/inventory/import"

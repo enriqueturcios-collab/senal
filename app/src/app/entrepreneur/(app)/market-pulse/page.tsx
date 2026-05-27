@@ -1,3 +1,4 @@
+import { ElementalGradient } from '@/components/ui/elemental-gradient'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { getServerSession } from 'next-auth'
@@ -103,13 +104,12 @@ export default async function MarketPulsePage() {
 
   return (
     <div className="max-w-3xl mx-auto px-5 md:px-8 py-8 pb-28">
-      <div className="mb-7">
-        <h1 className="text-[24px] font-bold text-signal-text" style={{ letterSpacing: '-0.02em' }}>
-          Market Pulse
-        </h1>
-        <p className="text-[12px] text-signal-text-muted mt-0.5">
-          Tendencias de demanda en tu mercado · últimos 30 días
-        </p>
+      <div className="relative rounded-2xl overflow-hidden mb-6 h-28">
+        <ElementalGradient />
+        <div className="absolute inset-0 bg-black/45 flex flex-col justify-end px-5 pb-4">
+          <h1 className="text-[22px] font-bold text-white" style={{ letterSpacing: '-0.025em' }}>Market Pulse</h1>
+          <p className="text-[12px] text-white/55 mt-0.5">Tendencias de demanda · últimos 30 días</p>
+        </div>
       </div>
 
       {/* Weekly bar chart */}

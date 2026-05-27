@@ -1,3 +1,4 @@
+import { ElementalGradient } from '@/components/ui/elemental-gradient'
 import Link from 'next/link'
 import { getServerSession } from 'next-auth'
 import { redirect } from 'next/navigation'
@@ -33,20 +34,18 @@ export default async function MyDemandsPage() {
   return (
     <main className="min-h-screen bg-signal-bg pb-28 px-5 py-6 md:px-8">
       <div className="max-w-2xl mx-auto">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-[24px] font-bold text-signal-text"
-              style={{ letterSpacing: '-0.02em' }}>
-            Mis demandas
-          </h1>
-
-          <Link
-            href="/demand/new"
-            className="text-white text-[13px] font-semibold px-4 py-2 rounded-xl
-                       hover:opacity-90 transition-all shadow-button"
-            style={{ backgroundColor: '#4D4A43' }}
-          >
-            + Nueva
-          </Link>
+        <div className="relative rounded-2xl overflow-hidden mb-5 h-24">
+          <ElementalGradient />
+          <div className="absolute inset-0 bg-black/45 flex items-end justify-between px-5 pb-4">
+            <h1 className="text-[22px] font-bold text-white" style={{ letterSpacing: '-0.025em' }}>Mis demandas</h1>
+            <Link
+              href="/demand/new"
+              className="text-[12px] font-bold px-4 py-2 rounded-xl transition-all"
+              style={{ backgroundColor: 'rgba(255,255,255,0.2)', color: '#fff', border: '1px solid rgba(255,255,255,0.25)' }}
+            >
+              + Nueva
+            </Link>
+          </div>
         </div>
 
         <NotificationStack items={offerNotifs} />

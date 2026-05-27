@@ -100,22 +100,22 @@ const FRAG = `
     // Aspect-correct centred coordinates
     vec2 p  = (uv - 0.5) * vec2(u_res.x / u_res.y, 1.0) * 3.2;
 
-    float t = u_time * 0.055;
+    float t = u_time * 0.22;
 
     // ── Double domain warp (gives the organic, lava-lamp quality) ────────────
     vec2 q = vec2(
-      fbm(p + t * 0.70),
-      fbm(p + vec2(1.3, 4.8) + t * 0.55)
+      fbm(p + t * 0.80),
+      fbm(p + vec2(1.3, 4.8) + t * 0.65)
     );
     vec2 r = vec2(
-      fbm(p + 4.0 * q + vec2(1.7, 9.2) + t * 0.40),
-      fbm(p + 4.0 * q + vec2(8.3, 2.8) + t * 0.35)
+      fbm(p + 4.0 * q + vec2(1.7, 9.2) + t * 0.50),
+      fbm(p + 4.0 * q + vec2(8.3, 2.8) + t * 0.45)
     );
-    float f = clamp(fbm(p + 4.0 * r + t * 0.20), 0.0, 1.0);
+    float f = clamp(fbm(p + 4.0 * r + t * 0.30), 0.0, 1.0);
 
-    // ── Smooth palette cycling (≈ 33 s per theme, ~2 min full cycle) ────────
-    float cycle = mod(u_time * 0.030, 4.0);
-    float ph    = smoothstep(0.20, 0.80, fract(cycle));
+    // ── Smooth palette cycling (~8 s per theme, ~32 s full cycle) ────────────
+    float cycle = mod(u_time * 0.125, 4.0);
+    float ph    = smoothstep(0.15, 0.85, fract(cycle));
 
     vec3 colA, colB;
     if      (cycle < 1.0) { colA = pal_lava(f);  colB = pal_agua(f);  }

@@ -1,3 +1,4 @@
+import { ElementalGradient } from '@/components/ui/elemental-gradient'
 import Link from 'next/link'
 import { getServerSession } from 'next-auth'
 import { redirect } from 'next/navigation'
@@ -42,6 +43,14 @@ export default async function ProfilePage() {
   return (
     <main className="min-h-screen bg-signal-bg pb-28 px-5 py-6 md:px-8 space-y-4">
       <div className="max-w-2xl mx-auto space-y-4">
+
+        {/* Gradient header */}
+        <div className="relative rounded-2xl overflow-hidden h-24">
+          <ElementalGradient />
+          <div className="absolute inset-0 bg-black/45 flex items-end px-5 pb-4">
+            <h1 className="text-[22px] font-bold text-white" style={{ letterSpacing: '-0.025em' }}>Mi perfil</h1>
+          </div>
+        </div>
 
         {/* Profile card */}
         <div className="rounded-2xl p-5 shadow-card"
