@@ -3,8 +3,22 @@
 import { useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { submitOffer } from '@/actions/offers'
+import { ImageUpload } from '@/components/ui/image-upload'
+import { MarketPriceCard } from '@/components/ui/market-price-card'
 
-export function OfferForm({ demandId }: { demandId: string }) {
+const inputCls = `w-full rounded-xl px-3 py-2.5 text-[14px] text-signal-text
+  outline-none transition-all duration-150`
+const inputStyle = { backgroundColor: '#F1ECE2', border: '1px solid #DED6C8' }
+const focusFn = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  e.currentTarget.style.borderColor = '#5F6F52'
+  e.currentTarget.style.boxShadow   = '0 0 0 3px rgba(95,111,82,0.08)'
+}
+const blurFn = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  e.currentTarget.style.borderColor = '#DED6C8'
+  e.currentTarget.style.boxShadow   = 'none'
+}
+
+export function OfferForm({ demandId, categoryId }: { demandId: string; categoryId?: number }) {
   const { data: session } = useSession()
   const [error, setError]     = useState('')
   const [success, setSuccess] = useState(false)
@@ -13,9 +27,12 @@ export function OfferForm({ demandId }: { demandId: string }) {
 
   if (success) {
     return (
-      <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 text-center">
-        <p className="text-emerald-700 font-medium">¡Oferta enviada!</p>
-        <p className="text-sm text-emerald-600 mt-1">El comprador recibirá tu propuesta.</p>
+      <div className="rounded-2xl p-5 text-center"
+           style={{ backgroundColor: '#EEF1EA', border: '1px solid rgba(95,111,82,0.2)' }}>
+        <p className="font-semibold" style={{ color: '#5F6F52' }}>¡Oferta enviada!</p>
+        <p className="text-[13px] mt-1" style={{ color: '#7B8A65' }}>
+          El comprador recibirá tu propuesta.
+        </p>
       </div>
     )
   }
@@ -24,7 +41,9 @@ export function OfferForm({ demandId }: { demandId: string }) {
     return (
       <button
         onClick={() => setOpen(true)}
-        className="w-full bg-brand-500 text-white font-semibold py-3 rounded-xl hover:bg-brand-600 transition-colors"
+        className="w-full text-white font-semibold py-3.5 rounded-xl
+                   hover:opacity-90 transition-all shadow-button text-[14px]"
+        style={{ backgroundColor: '#5F6F52' }}
       >
         Hacer oferta
       </button>
@@ -49,67 +68,71 @@ export function OfferForm({ demandId }: { demandId: string }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="border border-gray-200 rounded-xl p-4 space-y-3">
-      <h3 className="font-semibold text-gray-900">Tu oferta</h3>
+    <form onSubmit={handleSubmit} className="rounded-2xl p-5 space-y-4 shadow-card"
+          style={{ backgroundColor: '#FFFDF8', border: '1px solid #DED6C8' }}>
+      <h3 className="font-semibold text-signal-text">Tu oferta</h3>
 
       {error && (
-        <p className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg">{error}</p>
+        <div className="rounded-xl px-3 py-2.5"
+             style={{ backgroundColor: 'rgba(184,121,91,0.08)', border: '1px solid rgba(184,121,91,0.2)' }}>
+          <p className="text-[13px]" style={{ color: '#B8795B' }}>{error}</p>
+        </div>
       )}
 
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="block text-xs text-gray-500 mb-1">Precio <span className="text-red-500">*</span></label>
+          <label className="block text-[12px] text-signal-text-muted mb-1.5">
+            Precio <span style={{ color: '#B8795B' }}>*</span>
+          </label>
           <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">Q</span>
-            <input
-              name="price"
-              type="number"
-              required
-              min={1}
-              step={0.01}
-              placeholder="0.00"
-              className="w-full border border-gray-300 rounded-lg pl-7 pr-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
-            />
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[14px] text-signal-ash">Q</span>
+            <input name="price" type="number" required min={1} step={0.01} placeholder="0.00"
+                   className={`${inputCls} pl-7`} style={inputStyle}
+                   onFocus={focusFn} onBlur={blurFn} />
           </div>
         </div>
         <div>
-          <label className="block text-xs text-gray-500 mb-1">Días estimados</label>
-          <input
-            name="estimated_days"
-            type="number"
-            min={1}
-            max={365}
-            placeholder="Opcional"
-            className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
-          />
+          <label className="block text-[12px] text-signal-text-muted mb-1.5">Días estimados</label>
+          <input name="estimated_days" type="number" min={1} max={365} placeholder="Opcional"
+                 className={inputCls} style={inputStyle}
+                 onFocus={focusFn} onBlur={blurFn} />
         </div>
       </div>
 
       <input type="hidden" name="currency" value="GTQ" />
 
+      {categoryId && (
+        <MarketPriceCard categoryId={categoryId} />
+      )}
+
       <div>
-        <label className="block text-xs text-gray-500 mb-1">Descripción de tu propuesta</label>
-        <textarea
-          name="description"
-          rows={3}
+        <label className="block text-[12px] text-signal-text-muted mb-1.5">
+          Descripción de tu propuesta
+        </label>
+        <textarea name="description" rows={3}
           placeholder="Cuéntale al comprador cómo lo harías, qué incluye tu precio, experiencia relevante…"
-          className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 resize-none"
-        />
+          className={`${inputCls} resize-none`} style={inputStyle}
+          onFocus={focusFn} onBlur={blurFn} />
       </div>
 
-      <div className="flex gap-2">
-        <button
-          type="button"
-          onClick={() => setOpen(false)}
-          className="flex-1 border border-gray-200 text-gray-600 py-2.5 rounded-lg text-sm hover:bg-gray-50"
-        >
+      <div>
+        <label className="block text-[12px] text-signal-text-muted mb-1.5">
+          Fotos de referencia
+        </label>
+        <ImageUpload max={3} label="Añadir fotos" />
+      </div>
+
+      <div className="flex gap-2 pt-1">
+        <button type="button" onClick={() => setOpen(false)}
+          className="flex-1 py-2.5 rounded-xl text-[13px] text-signal-text-soft
+                     hover:bg-signal-surface-muted transition-colors"
+          style={{ border: '1px solid #DED6C8' }}>
           Cancelar
         </button>
-        <button
-          type="submit"
-          disabled={loading}
-          className="flex-1 bg-brand-500 text-white font-medium py-2.5 rounded-lg text-sm hover:bg-brand-600 disabled:opacity-60 transition-colors"
-        >
+        <button type="submit" disabled={loading}
+          className="flex-1 text-white font-medium py-2.5 rounded-xl text-[13px]
+                     hover:opacity-90 disabled:opacity-50 transition-all shadow-button"
+          style={{ backgroundColor: '#5F6F52' }}>
           {loading ? 'Enviando…' : 'Enviar oferta'}
         </button>
       </div>

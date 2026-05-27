@@ -22,7 +22,13 @@ export function CancelDemandButton({
     <button
       onClick={handleClick}
       disabled={loading}
-      className="w-full border border-red-200 text-red-600 py-2.5 rounded-xl text-sm hover:bg-red-50 disabled:opacity-50 transition-colors"
+      className="w-full py-2.5 rounded-xl text-[13px] hover:opacity-90
+                 disabled:opacity-50 transition-all"
+      style={{
+        border: '1px solid rgba(184,121,91,0.3)',
+        color: '#B8795B',
+        backgroundColor: 'rgba(184,121,91,0.06)',
+      }}
     >
       {loading ? 'Cancelando…' : 'Cancelar demanda'}
     </button>

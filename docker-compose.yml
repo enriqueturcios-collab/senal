@@ -76,8 +76,14 @@ services:
       DATABASE_URL:    postgresql://postgres:postgres@db:5432/senal_dev
       NEXTAUTH_URL:    http://localhost:3002
       NEXTAUTH_SECRET: dev-secret-app-change-in-prod
+      NEXT_PUBLIC_SIGNAL_BANK_NAME:    "Banco Industrial"
+      NEXT_PUBLIC_SIGNAL_BANK_ACCOUNT: "0530177088"
+      NEXT_PUBLIC_SIGNAL_BANK_HOLDER:  ""
     volumes:
       - ./app/src:/build/src:ro
+      - ./app/public:/build/public
+      - ./app/postcss.config.js:/build/postcss.config.js:ro
+      - ./app/tailwind.config.ts:/build/tailwind.config.ts:ro
 
   # ── ETL pipeline ──────────────────────────────────────────────────────────────
   etl:

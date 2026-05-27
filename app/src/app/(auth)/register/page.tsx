@@ -1,19 +1,28 @@
+import Link from 'next/link'
 import { RegisterForm } from './register-form'
 
 export default function RegisterPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-brand-50 to-teal-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-sm">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-brand-600 mb-1">señal</h1>
-          <p className="text-gray-500 text-sm">Conecta lo que necesitas con quien lo hace</p>
-        </div>
-
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-5">Crear cuenta</h2>
-          <RegisterForm />
-        </div>
+    <div className="w-full">
+      <div className="lg:hidden text-center mb-8">
+        <span className="text-[22px] font-bold tracking-[-0.03em] text-signal-text">signal</span>
       </div>
+
+      <div className="mb-7">
+        <h1 className="text-[26px] font-bold text-signal-text" style={{ letterSpacing: '-0.02em' }}>
+          Crear cuenta
+        </h1>
+        <p className="text-[13px] text-signal-text-muted mt-1">Gratis. Sin tarjeta. 30 segundos.</p>
+      </div>
+
+      <RegisterForm />
+
+      <p className="text-center text-[12px] text-signal-text-muted mt-6">
+        ¿Ya tienes cuenta?{' '}
+        <Link href="/login" className="text-signal-text font-semibold hover:text-signal-forest transition-colors">
+          Inicia sesión
+        </Link>
+      </p>
     </div>
   )
 }

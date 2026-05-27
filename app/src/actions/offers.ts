@@ -39,12 +39,17 @@ export async function submitOffer(
   )
   if (existing) return { error: 'Ya enviaste una oferta a esta demanda.' }
 
+  const imageUrlsRaw = formData.get('image_urls')
+  const imageUrls = imageUrlsRaw
+    ? String(imageUrlsRaw).split(',').map(u => u.trim()).filter(Boolean)
+    : []
+
   const o = parsed.data
   const offer = await queryOne<{ id: string }>(`
-    INSERT INTO app.offers (demand_id, seller_id, price, currency, description, estimated_days)
-    VALUES ($1,$2,$3,$4,$5,$6)
+    INSERT INTO app.offers (demand_id, seller_id, price, currency, description, estimated_days, image_urls)
+    VALUES ($1,$2,$3,$4,$5,$6,$7)
     RETURNING id
-  `, [demandId, sellerId, o.price, o.currency, o.description ?? null, o.estimated_days ?? null])
+  `, [demandId, sellerId, o.price, o.currency, o.description ?? null, o.estimated_days ?? null, imageUrls])
 
   if (!offer) return { error: 'Error al enviar la oferta.' }
 
@@ -55,10 +60,13 @@ export async function submitOffer(
 
 export async function acceptOffer(buyerId: string, offerId: string) {
   const offer = await queryOne<{
-    id: string; demand_id: string; seller_id: string; demand_user_id: string; demand_status: string
+    id: string; demand_id: string; seller_id: string
+    demand_user_id: string; demand_status: string
+    price: number; currency: string
   }>(`
     SELECT o.id, o.demand_id, o.seller_id,
-           d.user_id AS demand_user_id, d.status AS demand_status
+           d.user_id AS demand_user_id, d.status AS demand_status,
+           o.price, o.currency
     FROM app.offers o
     JOIN app.demands d ON d.id = o.demand_id
     WHERE o.id = $1
@@ -68,11 +76,7 @@ export async function acceptOffer(buyerId: string, offerId: string) {
   if (offer.demand_user_id !== buyerId) return { error: 'No autorizado.' }
   if (offer.demand_status !== 'open') return { error: 'La demanda ya no está abierta.' }
 
-  // Accept this offer, reject all others
-  await queryOne(
-    "UPDATE app.offers SET status = 'accepted' WHERE id = $1",
-    [offerId]
-  )
+  await queryOne("UPDATE app.offers SET status = 'accepted' WHERE id = $1", [offerId])
   await queryOne(
     "UPDATE app.offers SET status = 'rejected' WHERE demand_id = $1 AND id != $2",
     [offer.demand_id, offerId]
@@ -82,8 +86,17 @@ export async function acceptOffer(buyerId: string, offerId: string) {
     [offer.demand_id]
   )
 
+  // Create the reputation trade record — both parties will confirm against this
+  await queryOne(`
+    INSERT INTO reputation.verified_trades
+      (offer_id, demand_id, buyer_id, seller_id, amount, currency)
+    VALUES ($1, $2, $3, $4, $5, $6)
+    ON CONFLICT (offer_id) DO NOTHING
+  `, [offerId, offer.demand_id, buyerId, offer.seller_id, offer.price, offer.currency])
+
   revalidatePath(`/demand/${offer.demand_id}`)
   revalidatePath('/my-demands')
+  revalidatePath('/my-offers')
   return { success: true }
 }
 
@@ -103,53 +116,55 @@ export async function rejectOffer(buyerId: string, offerId: string) {
   return { success: true }
 }
 
-export async function confirmTransaction(
-  userId: string,
-  demandId: string,
-  offerId: string,
-  formData: FormData
-) {
-  const rating    = Number(formData.get('rating'))
-  const reviewText = String(formData.get('review') ?? '').trim() || null
-
-  const offer = await queryOne<{
-    demand_user_id: string; seller_id: string
-    price: number; currency: string; demand_status: string
-    offer_status: string
+export async function confirmTrade(userId: string, offerId: string) {
+  const trade = await queryOne<{
+    id: string; demand_id: string
+    buyer_id: string; seller_id: string
+    buyer_confirmed_at: string | null
+    seller_confirmed_at: string | null
   }>(`
-    SELECT d.user_id AS demand_user_id, o.seller_id,
-           o.price, o.currency, d.status AS demand_status, o.status AS offer_status
-    FROM app.offers o
-    JOIN app.demands d ON d.id = o.demand_id
-    WHERE o.id = $1 AND o.demand_id = $2
-  `, [offerId, demandId])
+    SELECT id, demand_id, buyer_id, seller_id,
+           buyer_confirmed_at::text, seller_confirmed_at::text
+    FROM reputation.verified_trades
+    WHERE offer_id = $1
+  `, [offerId])
 
-  if (!offer) return { error: 'Oferta no encontrada.' }
-  if (offer.demand_user_id !== userId) return { error: 'No autorizado.' }
-  if (offer.demand_status !== 'in_progress') return { error: 'La demanda no está en proceso.' }
-  if (offer.offer_status !== 'accepted') return { error: 'La oferta no está aceptada.' }
+  if (!trade) return { error: 'Trato no encontrado.' }
 
-  const tx = await queryOne<{ id: string }>(`
-    INSERT INTO app.transactions
-      (demand_id, offer_id, buyer_id, seller_id, final_price, currency, status)
-    VALUES ($1,$2,$3,$4,$5,$6,'confirmed')
-    RETURNING id
-  `, [demandId, offerId, userId, offer.seller_id, offer.price, offer.currency])
+  const isBuyer  = trade.buyer_id  === userId
+  const isSeller = trade.seller_id === userId
+  if (!isBuyer && !isSeller) return { error: 'No autorizado.' }
+  if (isBuyer  && trade.buyer_confirmed_at)  return { error: 'Ya confirmaste este trato.' }
+  if (isSeller && trade.seller_confirmed_at) return { error: 'Ya confirmaste este trato.' }
 
-  if (!tx) return { error: 'Error al confirmar la transacción.' }
+  const col = isBuyer ? 'buyer_confirmed_at' : 'seller_confirmed_at'
+  const updated = await queryOne<{
+    buyer_confirmed_at: string | null
+    seller_confirmed_at: string | null
+  }>(
+    `UPDATE reputation.verified_trades SET ${col} = now()
+     WHERE id = $1
+     RETURNING buyer_confirmed_at::text, seller_confirmed_at::text`,
+    [trade.id]
+  )
 
-  await queryOne("UPDATE app.demands SET status = 'closed' WHERE id = $1", [demandId])
-  await queryOne("UPDATE app.offers  SET status = 'completed' WHERE id = $1", [offerId])
-
-  if (rating >= 1 && rating <= 5) {
-    await queryOne(`
-      INSERT INTO app.ratings
-        (transaction_id, rater_id, rated_user_id, rating, review, role_of_rated)
-      VALUES ($1,$2,$3,$4,$5,'seller')
-    `, [tx.id, userId, offer.seller_id, rating, reviewText])
+  // Both sides confirmed → seal the trade
+  if (updated?.buyer_confirmed_at && updated?.seller_confirmed_at) {
+    await queryOne(
+      `UPDATE reputation.verified_trades SET completed_at = now() WHERE id = $1`,
+      [trade.id]
+    )
+    await queryOne(
+      `UPDATE app.offers  SET status = 'completed' WHERE id = $1`, [offerId]
+    )
+    await queryOne(
+      `UPDATE app.demands SET status = 'closed', closed_at = now() WHERE id = $1`,
+      [trade.demand_id]
+    )
   }
 
-  revalidatePath(`/demand/${demandId}`)
+  revalidatePath(`/demand/${trade.demand_id}`)
   revalidatePath('/my-demands')
-  return { success: true }
+  revalidatePath('/my-offers')
+  return { success: true, completed: !!(updated?.buyer_confirmed_at && updated?.seller_confirmed_at) }
 }

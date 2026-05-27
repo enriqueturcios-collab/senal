@@ -88,6 +88,7 @@ CREATE TABLE app.users (
 
     -- Identificadores — cifrados en reposo (app-level encryption recomendada)
     email                   VARCHAR(320) NOT NULL UNIQUE,
+    password_hash           VARCHAR(255),
     email_verified          BOOLEAN      NOT NULL DEFAULT false,
     phone                   VARCHAR(30),
     phone_verified          BOOLEAN      NOT NULL DEFAULT false,

@@ -2,18 +2,189 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  html {
-    -webkit-tap-highlight-color: transparent;
-  }
+*, *::before, *::after { box-sizing: border-box; }
 
-  body {
-    @apply bg-gray-50 text-gray-900 antialiased;
-  }
+html {
+  -webkit-tap-highlight-color: transparent;
+  scroll-behavior: smooth;
 }
 
-@layer utilities {
-  .safe-bottom {
-    padding-bottom: env(safe-area-inset-bottom);
-  }
+body {
+  background-color: #F7F3EA;
+  color: #171714;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "ss01" 1, "cv01" 1;
+  margin: 0;
+}
+
+::selection { background: #5F6F52; color: #FFFDF8; }
+
+input[type="checkbox"], input[type="radio"] { accent-color: #5F6F52; }
+
+/* ── Scrollbar ─────────────────────────────────────────────────────────────── */
+.hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+.hide-scroll::-webkit-scrollbar { display: none; }
+
+/* ── Warm glass ────────────────────────────────────────────────────────────── */
+.glass-warm {
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+}
+
+/* ── Global press feedback ─────────────────────────────────────────────────── */
+/* Every button and link gets a subtle scale-press by default */
+button,
+[role="button"] {
+  transition: transform 0.12s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+              opacity   0.12s ease;
+  -webkit-user-select: none;
+  user-select: none;
+}
+button:active:not(:disabled),
+[role="button"]:active {
+  transform: scale(0.95);
+}
+
+a {
+  transition: transform 0.12s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+              opacity   0.15s ease;
+}
+a:active {
+  transform: scale(0.97);
+  opacity: 0.85;
+}
+
+/* ── Keyframes ─────────────────────────────────────────────────────────────── */
+
+/* Page enters */
+@keyframes page-enter {
+  0%   { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Snappy pop — success states, badges, new items */
+@keyframes pop {
+  0%   { transform: scale(0.82); opacity: 0; }
+  60%  { transform: scale(1.08); opacity: 1; }
+  100% { transform: scale(1);    opacity: 1; }
+}
+
+/* Slide in from bottom — modals, sheets, toasts */
+@keyframes slide-up-in {
+  0%   { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Slide in from right — drawer panels */
+@keyframes slide-right-in {
+  0%   { opacity: 0; transform: translateX(16px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+
+/* Bounce dot — pulse indicators */
+@keyframes bounce-dot {
+  0%, 100% { transform: scale(1);    opacity: 1; }
+  50%       { transform: scale(1.35); opacity: 0.7; }
+}
+
+/* Float — ambient motion on hero elements */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-4px); }
+}
+
+/* Shimmer — loading skeletons */
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+/* Spin — spinners */
+@keyframes spin-smooth {
+  to { transform: rotate(360deg); }
+}
+
+/* Count up number flash */
+@keyframes number-pop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.18) translateY(-2px); }
+  100% { transform: scale(1); }
+}
+
+/* Bell ring — rings for first 18% of 3s cycle, then rests */
+@keyframes bell-ring {
+  0%, 20%, 100% { transform: rotate(0deg); }
+  3%  { transform: rotate(15deg); }
+  6%  { transform: rotate(-13deg); }
+  9%  { transform: rotate(10deg); }
+  12% { transform: rotate(-7deg); }
+  15% { transform: rotate(4deg); }
+  18% { transform: rotate(-2deg); }
+}
+
+/* ── Animation utility classes ─────────────────────────────────────────────── */
+
+.animate-page-enter   { animation: page-enter   0.28s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.animate-pop          { animation: pop           0.3s  cubic-bezier(0.175, 0.885, 0.32, 1.275) both; }
+.animate-slide-up-in  { animation: slide-up-in  0.32s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.animate-slide-right-in { animation: slide-right-in 0.25s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.animate-bounce-dot   { animation: bounce-dot   1.4s ease-in-out infinite; }
+.animate-float        { animation: float        3s   ease-in-out infinite; }
+.animate-spin-smooth  { animation: spin-smooth  0.7s linear infinite; }
+.animate-number-pop   { animation: number-pop   0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+.animate-bell-ring    { animation: bell-ring     3s   ease-in-out infinite; transform-origin: 50% 2px; }
+
+/* Staggered children */
+.stagger > *:nth-child(1) { animation-delay: 0ms;   }
+.stagger > *:nth-child(2) { animation-delay: 50ms;  }
+.stagger > *:nth-child(3) { animation-delay: 100ms; }
+.stagger > *:nth-child(4) { animation-delay: 150ms; }
+.stagger > *:nth-child(5) { animation-delay: 200ms; }
+.stagger > *:nth-child(6) { animation-delay: 250ms; }
+.stagger > *:nth-child(7) { animation-delay: 300ms; }
+.stagger > *:nth-child(8) { animation-delay: 350ms; }
+
+/* ── Interactive card ──────────────────────────────────────────────────────── */
+.interactive-card {
+  transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+.interactive-card:hover  { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(46,42,36,0.10), 0 2px 6px rgba(46,42,36,0.06); }
+.interactive-card:active { transform: translateY(0px) scale(0.985); }
+
+/* ── Ripple button ─────────────────────────────────────────────────────────── */
+.btn-primary {
+  position: relative;
+  overflow: hidden;
+  transition: transform  0.12s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+              box-shadow 0.15s ease,
+              opacity    0.12s ease;
+}
+.btn-primary:hover  { box-shadow: 0 4px 16px rgba(46,42,36,0.18); transform: translateY(-1px); }
+.btn-primary:active { transform: scale(0.96); box-shadow: none; }
+
+.btn-primary::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, rgba(255,255,255,0.25) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.btn-primary:hover::after { opacity: 1; }
+
+/* ── Skeleton ──────────────────────────────────────────────────────────────── */
+.skeleton {
+  background: linear-gradient(90deg, #EAE3D6 25%, #F1ECE2 50%, #EAE3D6 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+
+/* ── Focus ring ────────────────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid #5F6F52;
+  outline-offset: 2px;
+  border-radius: 6px;
 }

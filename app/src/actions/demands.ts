@@ -49,19 +49,24 @@ export async function createDemand(userId: string, formData: FormData) {
     return { error: 'El presupuesto mínimo no puede ser mayor al máximo.' }
   }
 
+  const imageUrlsRaw = formData.get('image_urls')
+  const imageUrls = imageUrlsRaw
+    ? String(imageUrlsRaw).split(',').map(u => u.trim()).filter(Boolean)
+    : []
+
   const demand = await queryOne<{ id: string }>(`
     INSERT INTO app.demands
       (user_id, title, description,
        category_id, subcategory_id, zone_id,
        budget_min, budget_max, currency,
-       urgency, is_anonymous)
-    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+       urgency, is_anonymous, image_urls)
+    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
     RETURNING id
   `, [
     userId, d.title, d.description,
     d.category_id, d.subcategory_id ?? null, d.zone_id ?? null,
     d.budget_min ?? null, d.budget_max ?? null, d.currency,
-    d.urgency, d.is_anonymous,
+    d.urgency, d.is_anonymous, imageUrls,
   ])
 
   if (!demand) return { error: 'Error al publicar la demanda.' }
@@ -75,6 +80,11 @@ export async function createDemand(userId: string, formData: FormData) {
 
   revalidatePath('/')
   revalidatePath('/my-demands')
+
+  // Trigger entrepreneur matching asynchronously (fire-and-forget)
+  import('@/lib/entrepreneur/matching')
+    .then(m => m.runMatchingForDemand(demand.id))
+    .catch(() => {}) // never block demand creation
 
   redirect(`/demand/${demand.id}`)
 }

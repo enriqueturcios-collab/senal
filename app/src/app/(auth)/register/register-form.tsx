@@ -3,149 +3,127 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { signIn } from 'next-auth/react'
-import Link from 'next/link'
 import { registerUser } from '@/actions/users'
+
+const roles = [
+  { value: 'buyer',  label: 'Comprar',  sub: 'Busco proveedores' },
+  { value: 'seller', label: 'Vender',   sub: 'Ofrezco servicios' },
+  { value: 'both',   label: 'Ambos',    sub: 'Compro y vendo' },
+]
+
+const inputCls = `w-full rounded-xl px-4 py-3 text-[14px] text-signal-text
+  outline-none placeholder:text-signal-ash transition-all duration-150`
 
 export function RegisterForm() {
   const router = useRouter()
   const [error, setError]     = useState('')
   const [loading, setLoading] = useState(false)
+  const [role, setRole]       = useState('both')
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setError('')
     setLoading(true)
-
     const fd = new FormData(e.currentTarget)
-
+    fd.set('role', role)
     const result = await registerUser(fd)
-
-    if ('error' in result) {
-      setError(result.error ?? 'Error desconocido.')
-      setLoading(false)
-      return
-    }
-
-    // Auto-login after register
-    const signInResult = await signIn('credentials', {
-      email:    fd.get('email'),
-      password: fd.get('password'),
-      redirect: false,
-    })
-
-    if (signInResult?.ok) {
-      router.push('/')
-      router.refresh()
-    } else {
-      router.push('/login')
-    }
+    if ('error' in result) { setError(result.error ?? 'Error.'); setLoading(false); return }
+    const r = await signIn('credentials', { email: fd.get('email'), password: fd.get('password'), redirect: false })
+    if (r?.ok) { router.push('/'); router.refresh() } else { router.push('/login') }
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-3">
       {error && (
-        <p className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg">{error}</p>
+        <div className="rounded-xl px-4 py-3"
+             style={{ backgroundColor: 'rgba(184,121,91,0.08)', border: '1px solid rgba(184,121,91,0.2)' }}>
+          <p className="text-[13px] font-medium" style={{ color: '#B8795B' }}>{error}</p>
+        </div>
       )}
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
-        <input
-          name="display_name"
-          type="text"
-          required
-          placeholder="Cómo te conocerán"
-          className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
-        />
+      <input name="display_name" type="text" required placeholder="Nombre o apodo"
+        className={inputCls}
+        style={{ backgroundColor: '#F1ECE2', border: '1px solid #DED6C8' }}
+        onFocus={e => (e.currentTarget.style.borderColor = '#5F6F52')}
+        onBlur={e  => (e.currentTarget.style.borderColor = '#DED6C8')}
+      />
+      <input name="email" type="email" required autoComplete="email" placeholder="Email"
+        className={inputCls}
+        style={{ backgroundColor: '#F1ECE2', border: '1px solid #DED6C8' }}
+        onFocus={e => (e.currentTarget.style.borderColor = '#5F6F52')}
+        onBlur={e  => (e.currentTarget.style.borderColor = '#DED6C8')}
+      />
+      <input name="password" type="password" required minLength={8}
+        placeholder="Contraseña (mín. 8 caracteres)"
+        className={inputCls}
+        style={{ backgroundColor: '#F1ECE2', border: '1px solid #DED6C8' }}
+        onFocus={e => (e.currentTarget.style.borderColor = '#5F6F52')}
+        onBlur={e  => (e.currentTarget.style.borderColor = '#DED6C8')}
+      />
+
+      {/* Role selector */}
+      <div className="grid grid-cols-3 gap-2 pt-1">
+        {roles.map(r => (
+          <button
+            key={r.value}
+            type="button"
+            onClick={() => setRole(r.value)}
+            className="rounded-xl p-3 text-center transition-all duration-150 active:scale-[0.97]"
+            style={{
+              backgroundColor: role === r.value ? '#FFFDF8' : '#F1ECE2',
+              border: role === r.value ? '1.5px solid #5F6F52' : '1.5px solid #DED6C8',
+              boxShadow: role === r.value ? '0 2px 8px rgba(95,111,82,0.12)' : 'none',
+            }}
+          >
+            <p className="text-[13px] font-semibold"
+               style={{ color: role === r.value ? '#5F6F52' : '#5F5B52' }}>
+              {r.label}
+            </p>
+            <p className="text-[10px] mt-0.5 text-signal-ash">{r.sub}</p>
+          </button>
+        ))}
       </div>
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-        <input
-          name="email"
-          type="email"
-          required
-          autoComplete="email"
-          className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
-        <input
-          name="password"
-          type="password"
-          required
-          minLength={8}
-          placeholder="Mínimo 8 caracteres"
-          className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Quiero usar Señal para…</label>
-        <select
-          name="role"
-          required
-          className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white"
-        >
-          <option value="buyer">Buscar proveedores / contratar</option>
-          <option value="seller">Ofrecer mis servicios o productos</option>
-          <option value="both">Ambos</option>
-        </select>
-      </div>
-
-      {/* Consent section — critical for ETL pipeline */}
-      <div className="bg-gray-50 rounded-xl p-4 space-y-3">
-        <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Permisos de datos</p>
+      {/* Consent */}
+      <div className="rounded-xl p-4 space-y-3"
+           style={{ backgroundColor: '#F1ECE2', border: '1px solid #EAE3D6' }}>
+        <p className="text-[10px] font-semibold text-signal-ash uppercase tracking-widest">Privacidad</p>
 
         <label className="flex items-start gap-3 cursor-pointer">
-          <input
-            type="checkbox"
-            name="consent_analytics"
-            value="true"
-            className="mt-0.5 accent-brand-500"
-          />
-          <span className="text-sm text-gray-700">
-            Acepto que mis demandas (sin datos personales) se incluyan en estadísticas
-            de mercado anonimizadas.{' '}
-            <span className="text-gray-400 text-xs">Opcional</span>
+          <input type="checkbox" name="consent_analytics" value="true"
+            className="mt-0.5 w-4 h-4 rounded shrink-0" />
+          <span className="text-[12px] text-signal-text-soft leading-relaxed">
+            Mis demandas se incluyen en{' '}
+            <span className="text-signal-text font-medium">estadísticas anónimas</span> de mercado.{' '}
+            <span className="text-signal-ash">(Opcional)</span>
           </span>
         </label>
 
         <label className="flex items-start gap-3 cursor-pointer">
-          <input
-            type="checkbox"
-            name="consent_b2b_aggregate"
-            value="true"
-            className="mt-0.5 accent-brand-500"
-          />
-          <span className="text-sm text-gray-700">
-            Acepto que datos agregados (por categoría y zona) se compartan con
-            instituciones financieras para análisis de mercado.{' '}
-            <span className="text-gray-400 text-xs">Opcional</span>
+          <input type="checkbox" name="consent_b2b_aggregate" value="true"
+            className="mt-0.5 w-4 h-4 rounded shrink-0" />
+          <span className="text-[12px] text-signal-text-soft leading-relaxed">
+            Datos agregados se comparten con{' '}
+            <span className="text-signal-text font-medium">instituciones financieras</span>.{' '}
+            <span className="text-signal-ash">(Opcional)</span>
           </span>
         </label>
 
-        <p className="text-xs text-gray-400">
-          Nunca vendemos tu nombre, contacto o datos individuales. Puedes cambiar
-          estos permisos en cualquier momento desde tu perfil.
-        </p>
+        <p className="text-[11px] text-signal-ash">Nunca vendemos tu nombre ni datos personales.</p>
       </div>
 
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full bg-brand-500 text-white font-semibold py-3 rounded-xl hover:bg-brand-600 disabled:opacity-60 transition-colors"
-      >
-        {loading ? 'Creando cuenta…' : 'Crear cuenta gratis'}
+      <button type="submit" disabled={loading}
+        className="w-full text-white text-[14px] font-semibold
+                   py-3 rounded-xl hover:opacity-90 active:scale-[0.99]
+                   disabled:opacity-40 transition-all duration-150 shadow-button"
+        style={{ backgroundColor: '#4D4A43' }}>
+        {loading ? (
+          <span className="flex items-center justify-center gap-2">
+            <span className="w-4 h-4 border-2 border-white/25 border-t-white rounded-full animate-spin" />
+            Creando cuenta…
+          </span>
+        ) : 'Crear cuenta gratis'}
       </button>
-
-      <p className="text-center text-sm text-gray-500">
-        ¿Ya tienes cuenta?{' '}
-        <Link href="/login" className="text-brand-600 font-medium">
-          Inicia sesión
-        </Link>
-      </p>
     </form>
   )
 }

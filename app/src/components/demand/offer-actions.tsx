@@ -1,7 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { acceptOffer, rejectOffer, confirmTransaction } from '@/actions/offers'
+import Link from 'next/link'
+import { acceptOffer, rejectOffer } from '@/actions/offers'
+import { TradeConfirmWidget } from '@/components/reputation/trade-confirm'
 import { cn, fmtCurrency, OFFER_STATUS_LABELS, OFFER_STATUS_COLORS } from '@/lib/utils'
 
 interface Offer {
@@ -16,13 +18,16 @@ interface Offer {
   estimated_days: number | null
   status: string
   created_at: string
+  buyer_confirmed_at: string | null
+  seller_confirmed_at: string | null
+  trade_completed_at: string | null
+  trade_id: string | null
+  already_vouched: boolean
+  fee_status: string | null
 }
 
 export function OfferList({
-  offers,
-  demandId,
-  buyerId,
-  demandStatus,
+  offers, demandId, buyerId, demandStatus,
 }: {
   offers: Offer[]
   demandId: string
@@ -31,28 +36,19 @@ export function OfferList({
 }) {
   return (
     <div className="space-y-3">
-      <h3 className="font-semibold text-gray-900">
+      <h3 className="font-semibold text-signal-text">
         {offers.length} {offers.length === 1 ? 'oferta recibida' : 'ofertas recibidas'}
       </h3>
-
       {offers.map(o => (
-        <OfferCard
-          key={o.id}
-          offer={o}
-          demandId={demandId}
-          buyerId={buyerId}
-          demandStatus={demandStatus}
-        />
+        <OfferCard key={o.id} offer={o} demandId={demandId}
+                   buyerId={buyerId} demandStatus={demandStatus} />
       ))}
     </div>
   )
 }
 
 function OfferCard({
-  offer,
-  demandId,
-  buyerId,
-  demandStatus,
+  offer, demandId, buyerId, demandStatus,
 }: {
   offer: Offer
   demandId: string
@@ -60,11 +56,10 @@ function OfferCard({
   demandStatus: string
 }) {
   const [loading, setLoading] = useState(false)
-  const [confirming, setConfirming] = useState(false)
-  const [rating, setRating] = useState(5)
 
-  const canAct   = demandStatus === 'open'
-  const canConfirm = demandStatus === 'in_progress' && offer.status === 'accepted'
+  const canAct     = demandStatus === 'open'
+  const canConfirm = (demandStatus === 'in_progress' || offer.trade_completed_at)
+                     && offer.status === 'accepted'
 
   async function accept() {
     if (!confirm('¿Aceptar esta oferta? Las demás serán rechazadas.')) return
@@ -77,115 +72,85 @@ function OfferCard({
     await rejectOffer(buyerId, offer.id)
   }
 
-  async function handleConfirm(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    setLoading(true)
-    const fd = new FormData(e.currentTarget)
-    fd.set('rating', String(rating))
-    await confirmTransaction(buyerId, demandId, offer.id, fd)
-  }
+  const cardBg =
+    offer.trade_completed_at
+      ? { backgroundColor: '#EEF1EA', border: '1px solid rgba(95,111,82,0.25)' }
+    : offer.status === 'accepted'
+      ? { backgroundColor: '#F7F9F5', border: '1px solid rgba(95,111,82,0.2)' }
+    : offer.status === 'rejected'
+      ? { backgroundColor: '#F5F2EE', border: '1px solid #EAE3D6', opacity: 0.6 }
+    : { backgroundColor: '#FFFDF8', border: '1px solid #DED6C8' }
 
   return (
-    <div className={cn(
-      'border rounded-xl p-4 space-y-3',
-      offer.status === 'accepted' ? 'border-brand-300 bg-brand-50' :
-      offer.status === 'rejected' ? 'border-gray-100 bg-gray-50 opacity-60' :
-      'border-gray-200 bg-white'
-    )}>
+    <div className="rounded-2xl p-4 space-y-3 shadow-card" style={cardBg}>
       <div className="flex items-start justify-between">
         <div>
-          <p className="font-medium text-gray-900">{offer.seller_name}</p>
+          <Link href={`/users/${offer.seller_id}`}
+                className="font-medium text-signal-text hover:underline">
+            {offer.seller_name}
+          </Link>
           {offer.seller_rating && (
-            <p className="text-xs text-amber-600">★ {offer.seller_rating.toFixed(1)}</p>
+            <p className="text-[12px] mt-0.5" style={{ color: '#B8946F' }}>
+              ★ {offer.seller_rating.toFixed(1)}
+            </p>
           )}
         </div>
         <div className="text-right">
-          <p className="text-lg font-bold text-gray-900">{fmtCurrency(offer.price, offer.currency)}</p>
+          <p className="text-lg font-bold text-signal-text">
+            {fmtCurrency(offer.price, offer.currency)}
+          </p>
           {offer.estimated_days && (
-            <p className="text-xs text-gray-400">{offer.estimated_days} días</p>
+            <p className="text-[12px] text-signal-text-muted">{offer.estimated_days} días</p>
           )}
         </div>
       </div>
 
       {offer.description && (
-        <p className="text-sm text-gray-600">{offer.description}</p>
+        <p className="text-[13px] text-signal-text-soft">{offer.description}</p>
       )}
 
       <div className="flex items-center justify-between">
-        <span className={cn('text-xs font-medium px-2 py-0.5 rounded-full', OFFER_STATUS_COLORS[offer.status])}>
+        <span className={cn('text-[11px] font-medium px-2.5 py-1 rounded-full',
+          OFFER_STATUS_COLORS[offer.status])}>
           {OFFER_STATUS_LABELS[offer.status] ?? offer.status}
         </span>
 
         {canAct && offer.status === 'sent' && (
           <div className="flex gap-2">
-            <button
-              disabled={loading}
-              onClick={reject}
-              className="text-sm px-3 py-1.5 border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50 disabled:opacity-50"
-            >
+            <button disabled={loading} onClick={reject}
+              className="text-[13px] px-3 py-1.5 rounded-xl text-signal-text-soft
+                         hover:bg-signal-surface-muted disabled:opacity-50 transition-colors"
+              style={{ border: '1px solid #DED6C8' }}>
               Rechazar
             </button>
-            <button
-              disabled={loading}
-              onClick={accept}
-              className="text-sm px-3 py-1.5 bg-brand-500 text-white rounded-lg hover:bg-brand-600 disabled:opacity-50"
-            >
+            <button disabled={loading} onClick={accept}
+              className="text-[13px] px-3 py-1.5 rounded-xl text-white
+                         hover:opacity-90 disabled:opacity-50 transition-all shadow-button"
+              style={{ backgroundColor: '#5F6F52' }}>
               Aceptar
             </button>
           </div>
         )}
       </div>
 
-      {canConfirm && !confirming && (
-        <button
-          onClick={() => setConfirming(true)}
-          className="w-full bg-emerald-500 text-white font-medium py-2.5 rounded-lg text-sm hover:bg-emerald-600"
-        >
-          Confirmar trabajo completado
-        </button>
-      )}
-
-      {canConfirm && confirming && (
-        <form onSubmit={handleConfirm} className="space-y-3 pt-2 border-t border-brand-200">
-          <p className="text-sm font-medium text-gray-700">Califica al proveedor</p>
-
-          <div className="flex gap-1">
-            {[1,2,3,4,5].map(n => (
-              <button
-                key={n}
-                type="button"
-                onClick={() => setRating(n)}
-                className={cn('text-2xl', n <= rating ? 'text-amber-400' : 'text-gray-200')}
-              >
-                ★
-              </button>
-            ))}
-          </div>
-
-          <textarea
-            name="review"
-            rows={2}
-            placeholder="Opcional: deja un comentario"
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 resize-none"
+      {canConfirm && (
+        <div style={{ borderTop: '1px solid rgba(95,111,82,0.15)', paddingTop: '0.75rem' }}>
+          <TradeConfirmWidget
+            offerId={offer.id}
+            userId={buyerId}
+            role="buyer"
+            buyerConfirmed={!!offer.buyer_confirmed_at}
+            sellerConfirmed={!!offer.seller_confirmed_at}
+            completed={!!offer.trade_completed_at}
+            offerPrice={offer.price}
+            offerCurrency={offer.currency}
+            feeStatus={offer.fee_status}
+            tradeId={offer.trade_id ?? undefined}
+            counterpartyId={offer.seller_id}
+            counterpartyName={offer.seller_name}
+            alreadyVouched={offer.already_vouched}
           />
-
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={() => setConfirming(false)}
-              className="flex-1 border border-gray-200 py-2 rounded-lg text-sm text-gray-600"
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="flex-1 bg-emerald-500 text-white font-medium py-2 rounded-lg text-sm hover:bg-emerald-600 disabled:opacity-50"
-            >
-              {loading ? 'Confirmando…' : 'Confirmar'}
-            </button>
-          </div>
-        </form>
+        </div>
       )}
     </div>
   )

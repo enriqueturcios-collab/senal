@@ -61,8 +61,8 @@ export async function registerUser(formData: FormData) {
     ['consent_individual',   'denied'],
   ]
   await query(`
-    INSERT INTO app.user_consent_log (user_id, consent_type, new_value, changed_by)
-    SELECT $1, unnest($2::text[]), unnest($3::app.consent_status[]), 'user_registration'
+    INSERT INTO app.user_consent_log (user_id, consent_type, new_status)
+    SELECT $1, unnest($2::text[]), unnest($3::app.consent_status[])
   `, [user.id, consents.map(c => c[0]), consents.map(c => c[1])])
 
   // Auto-create seller profile if applicable
@@ -121,8 +121,8 @@ export async function updateConsent(
   )
 
   await queryOne(`
-    INSERT INTO app.user_consent_log (user_id, consent_type, new_value, changed_by)
-    VALUES ($1, $2, $3, 'user_settings')
+    INSERT INTO app.user_consent_log (user_id, consent_type, new_status)
+    VALUES ($1, $2, $3)
   `, [userId, consentType, value])
 
   revalidatePath('/profile')

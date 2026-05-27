@@ -1,19 +1,32 @@
+import { Suspense } from 'react'
+import Link from 'next/link'
 import { LoginForm } from './login-form'
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-brand-50 to-teal-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-sm">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-brand-600 mb-1">señal</h1>
-          <p className="text-gray-500 text-sm">Encuentra quién lo hace</p>
-        </div>
-
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-5">Iniciar sesión</h2>
-          <LoginForm />
-        </div>
+    <div className="w-full">
+      {/* Mobile logo */}
+      <div className="lg:hidden text-center mb-8">
+        <span className="text-[22px] font-bold tracking-[-0.03em] text-signal-text">signal</span>
       </div>
+
+      <div className="mb-7">
+        <h1 className="text-[26px] font-bold text-signal-text" style={{ letterSpacing: '-0.02em' }}>
+          Iniciar sesión
+        </h1>
+        <p className="text-[13px] text-signal-text-muted mt-1">Accede a tu cuenta de signal.</p>
+      </div>
+
+      <Suspense>
+        <LoginForm />
+      </Suspense>
+
+      <p className="text-center text-[12px] text-signal-text-muted mt-6">
+        ¿No tienes cuenta?{' '}
+        <Link href="/register" className="text-signal-text font-semibold hover:text-signal-forest transition-colors">
+          Regístrate gratis
+        </Link>
+      </p>
     </div>
   )
 }
