@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { getInstitutionalSession } from '@/lib/institutional-auth'
 import { InstSidebar } from '@/components/institutional/inst-sidebar'
+import { ElementalGradient } from '@/components/ui/elemental-gradient'
 import { queryOne } from '@/db'
 
 export default async function InstitutionalLayout({ children }: { children: React.ReactNode }) {
@@ -26,25 +27,24 @@ export default async function InstitutionalLayout({ children }: { children: Reac
         planTier={inst?.plan_tier ?? 'basic'}
       />
 
-      {/* Top bar — always visible: hamburger space + back to Signal */}
-      <div className="fixed top-0 inset-x-0 z-30 h-14 flex items-center justify-between px-4"
-           style={{ backgroundColor: 'rgba(247,243,234,0.92)', borderBottom: '1px solid #DED6C8', backdropFilter: 'blur(8px)' }}>
-        {/* Left: hamburger placeholder (the button is rendered by InstSidebar) */}
-        <div className="w-9" />
+      {/* Top bar */}
+      <div className="fixed top-0 inset-x-0 z-30 h-14 flex items-center justify-between px-4 overflow-hidden"
+           style={{ borderBottom: '1px solid rgba(0,0,0,0.15)' }}>
+        <ElementalGradient />
+        <div className="absolute inset-0 bg-black/45" />
 
-        {/* Center: portal label */}
-        <div className="flex items-center gap-2">
-          <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: '#5F6F52' }} />
-          <span className="text-[12px] font-semibold uppercase tracking-widest" style={{ color: '#5F6F52' }}>
+        <div className="relative w-9" />
+
+        <div className="relative flex items-center gap-2">
+          <div className="w-1.5 h-1.5 rounded-full bg-white/70" />
+          <span className="text-[12px] font-semibold uppercase tracking-widest text-white/80">
             Demand Intelligence
           </span>
         </div>
 
-        {/* Right: back to Signal */}
         <Link href="/"
-              className="flex items-center gap-1.5 text-[12px] font-semibold px-3 py-1.5 rounded-xl
-                         transition-colors hover:bg-signal-surface-muted"
-              style={{ color: '#4D4A43' }}>
+              className="relative flex items-center gap-1.5 text-[12px] font-semibold px-3 py-1.5 rounded-xl
+                         transition-colors text-white/80 hover:text-white hover:bg-white/10">
           <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
           </svg>

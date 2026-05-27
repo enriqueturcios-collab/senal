@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth'
 import { queryOne } from '@/db'
 import { SidebarNav } from './sidebar-nav'
 import { NotificationBell } from '@/components/notifications/bell'
+import { ElementalGradient } from '@/components/ui/elemental-gradient'
 
 export async function Sidebar() {
   const session = await getServerSession(authOptions)
@@ -34,11 +35,13 @@ export async function Sidebar() {
     <aside className="fixed left-0 top-0 bottom-0 w-60 flex flex-col z-30"
            style={{ backgroundColor: '#FFFDF8', borderRight: '1px solid #DED6C8' }}>
 
-      {/* Logo + actions */}
-      <div className="px-4 pt-6 pb-5">
-        <div className="flex items-center justify-between mb-4">
+      {/* Logo + actions — gradient header */}
+      <div className="relative h-20 overflow-hidden shrink-0">
+        <ElementalGradient />
+        <div className="absolute inset-0 bg-black/40" />
+        <div className="relative h-full flex items-center justify-between px-4">
           <Link href="/">
-            <span className="text-[22px] font-bold tracking-[-0.03em] text-signal-text
+            <span className="text-[22px] font-bold tracking-[-0.03em] text-white
                              hover:opacity-80 transition-opacity duration-150">
               signal
             </span>

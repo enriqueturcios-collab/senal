@@ -7,6 +7,7 @@ import { ensureEntrepreneurProfile } from '@/lib/entitlements/feature-gate'
 import { queryOne } from '@/db'
 import { EntrepreneurSidebar } from '@/components/entrepreneur/entrepreneur-sidebar'
 import { DashboardHomeBtn } from '@/components/entrepreneur/dashboard-home-btn'
+import { ElementalGradient } from '@/components/ui/elemental-gradient'
 import type { EntrepreneurPlan } from '@/lib/entitlements/entrepreneur-plans'
 
 export default async function EntrepreneurLayout({ children }: { children: React.ReactNode }) {
@@ -33,20 +34,18 @@ export default async function EntrepreneurLayout({ children }: { children: React
       />
 
       {/* Top bar */}
-      <div className="fixed top-0 inset-x-0 z-30 h-14 flex items-center justify-between px-4"
-           style={{
-             backgroundColor: 'rgba(247,243,234,0.92)',
-             borderBottom: '1px solid #DED6C8',
-             backdropFilter: 'blur(8px)',
-           }}>
-        <div className="w-9" />
-        <div className="flex items-center gap-2">
-          <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: '#5F6F52' }} />
-          <span className="text-[12px] font-semibold uppercase tracking-widest" style={{ color: '#5F6F52' }}>
+      <div className="fixed top-0 inset-x-0 z-30 h-14 flex items-center justify-between px-4 overflow-hidden"
+           style={{ borderBottom: '1px solid rgba(0,0,0,0.15)' }}>
+        <ElementalGradient />
+        <div className="absolute inset-0 bg-black/45" />
+        <div className="relative w-9" />
+        <div className="relative flex items-center gap-2">
+          <div className="w-1.5 h-1.5 rounded-full bg-white/70" />
+          <span className="text-[12px] font-semibold uppercase tracking-widest text-white/80">
             Signal Entrepreneur
           </span>
         </div>
-        <DashboardHomeBtn />
+        <div className="relative"><DashboardHomeBtn /></div>
       </div>
 
       <div className="pt-14 animate-page-enter">
