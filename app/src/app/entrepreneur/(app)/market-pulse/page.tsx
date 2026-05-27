@@ -89,7 +89,7 @@ export default async function MarketPulsePage() {
     SELECT to_char(date_trunc('week', created_at), 'Mon DD') AS week,
            COUNT(*)::int AS count
     FROM app.demands
-    WHERE status IN ('open', 'matched')
+    WHERE status IN ('open', 'in_progress')
       AND created_at >= now() - interval '4 weeks'
     GROUP BY date_trunc('week', created_at)
     ORDER BY date_trunc('week', created_at)
